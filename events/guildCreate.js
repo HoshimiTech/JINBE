@@ -24,7 +24,7 @@ module.exports = async (client, guild) => {
 			message_expand: true,
 			url_check: {
 				status: true,
-				warnUnknownStatusMessage: false,
+				warnUnknownStatusURL: false,
 			},
 		});
 	} catch (err) {

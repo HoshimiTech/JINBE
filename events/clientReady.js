@@ -183,7 +183,7 @@ module.exports = async (client) => {
 					message_expand: true,
 					url_check: {
 						status: true,
-						warnUnknownStatusMessage: false,
+						warnUnknownStatusURL: false,
 					},
 				});
 				console.log(
