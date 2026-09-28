@@ -40,35 +40,22 @@ async function birthdayCheck(client) {
 		const celebrateServerIDs = model[key].serverIDs;
 		const birthdayPeopleID = model[key]._id;
 		let dataDeleted = false;
+		const uncelebratedServers = [];
 
 		for (const celebrateServerID of celebrateServerIDs) {
 			const serverInfo = await serverDB.findById(celebrateServerID);
 			const birthdayCelebrateStatus = serverInfo?.birthday_celebrate?.status;
 			const birthdayCelebrateChannelID =
 				serverInfo?.birthday_celebrate?.channelID;
-			// サーバー設定で誕生日祝いが無効になっている場合、またはサーバー情報が取得できなかった場合
-			if (!serverInfo || !birthdayCelebrateStatus) {
-				try {
-					const celebratedUser = await client.users.fetch(birthdayPeopleID);
-					const serverName = client.guilds.cache.get(celebrateServerID)?.name;
-
-					await celebratedUser
-						.send(
-							`🎉お誕生日おめでとうございます！🎉\n\nサーバー「${serverName ? serverName : '不明なサーバー'}」において、誕生日を祝う機能が無効にされたため、誕生日を祝うことができませんでした。\nサーバー管理者に再設定を依頼してください。\n\n※なお、あなたのこのメッセージをもって、このサーバーに関連付けされたあなたの誕生日情報は削除されます。サーバー管理者が再設定したら、あなた自身も再度設定してください。`,
-						)
-						.catch((err) => {
-							// エラーコード50007: ユーザーにDMを送信できません
-							// エラーコード10013: ユーザーが見つかりません
-							if (err.code === 50007 || err.code === 10013) {
-								return;
-							}
-							// それ以外のエラーは再スロー（外側のtry/catchとSentryでキャッチされる）
-							throw err;
-						});
-				} catch (err) {
-					Sentry.setTag('Error Point', 'notifyUserBirthdayCelebrationDisabled');
-					Sentry.captureException(err);
-				}
+			// サーバー情報が取得できなかった場合
+			if (
+				!serverInfo ||
+				(birthdayCelebrateStatus !== true && birthdayCelebrateStatus !== false)
+			) {
+				uncelebratedServers.push({
+					serverId: celebrateServerID,
+					serverName: serverInfo?.name || '不明なサーバー',
+				});
 
 				// ユーザーDBからの削除手続きを行う。
 				model[key].serverIDs = model[key].serverIDs.filter((serverID) => {
@@ -115,6 +102,30 @@ async function birthdayCheck(client) {
 						},
 					],
 				});
+			}
+		}
+
+		// 誕生日が祝えなかったサーバーをまとめて通知する
+		if (uncelebratedServers.length > 0) {
+			try {
+				const celebratedUser = await client.users.fetch(birthdayPeopleID);
+
+				await celebratedUser
+					.send(
+						`🎉お誕生日おめでとうございます！🎉\n\n以下のサーバーにおいて、サーバーデータの取得に失敗したため、誕生日を祝うことができませんでした。\nサーバー管理者に再設定を依頼してください。\n\n※なお、あなたのこのメッセージをもって、このサーバーに関連付けされたあなたの誕生日情報は削除されます。サーバー管理者が再設定したら、あなた自身も再度設定してください。\n\n${uncelebratedServers.map((server) => `- ${server.serverName} (${server.serverId})`).join('\n')}`,
+					)
+					.catch((err) => {
+						// エラーコード50007: ユーザーにDMを送信できません
+						// エラーコード10013: ユーザーが見つかりません
+						if (err.code === 50007 || err.code === 10013) {
+							return;
+						}
+						// それ以外のエラーは再スロー（外側のtry/catchとSentryでキャッチされる）
+						throw err;
+					});
+			} catch (err) {
+				Sentry.setTag('Error Point', 'notifyUserBirthdayCelebrationDisabled');
+				Sentry.captureException(err);
 			}
 		}
 
