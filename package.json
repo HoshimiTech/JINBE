@@ -27,8 +27,8 @@
 	},
 	"homepage": "https://github.com/HoshimiTech/JINBE#readme",
 	"dependencies": {
-		"@sentry/node": "^10.68.0",
-		"@sentry/profiling-node": "^10.68.0",
+		"@sentry/node": "^11.0.0",
+		"@sentry/profiling-node": "^11.0.0",
 		"date-fns-timezone": "^0.1.4",
 		"discord.js": "^14.27.0",
 		"dotenv": "^17.4.2",
