@@ -65,8 +65,8 @@ async function getSafe(urls, message, server) {
 				const isCritical = status === '危険な' || status === '注意が必要な';
 				const isUnknown = status === '安全性が不明な';
 
-				// 安全性が不明な場合で、warnUnknownStatusMessageがfalseなら警告を送らない
-				if (isUnknown && !server?.url_check?.warnUnknownStatusMessage) {
+				// 安全性が不明な場合で、warnUnknownStatusURLがfalseなら警告を送らない
+				if (isUnknown && !server?.url_check?.warnUnknownStatusURL) {
 					await sleep(2500);
 					continue;
 				}

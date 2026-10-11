@@ -192,7 +192,7 @@ module.exports = {
 				}
 			} else if (subcommand === 'url_check') {
 				const status = interaction.options.getString('status') === 'true';
-				const warnUnknownStatusMessage =
+				const warnUnknownStatusURL =
 					interaction.options.getString('warn_unknown_status_message') ===
 					'true';
 				const server = await serverDB.findById(interaction.guild.id);
@@ -204,7 +204,7 @@ module.exports = {
 				} else {
 					server.url_check = {
 						status: status,
-						warnUnknownStatusMessage: warnUnknownStatusMessage,
+						warnUnknownStatusURL: warnUnknownStatusURL,
 					};
 					try {
 						await server.save();
@@ -212,7 +212,7 @@ module.exports = {
 							embeds: [
 								{
 									title: `送信されたURLの安全性チェック機能を以下の様に更新しました！`,
-									description: `- URLチェック機能: ${status ? '有効' : '無効'}\n- URLの安全性が不明な場合に警告メッセージを送る機能: ${warnUnknownStatusMessage ? '有効' : '無効'}`,
+									description: `- URLチェック機能: ${status ? '有効' : '無効'}\n- URLの安全性が不明な場合に警告メッセージを送る機能: ${warnUnknownStatusURL ? '有効' : '無効'}`,
 									color: 0x10ff00,
 								},
 							],
@@ -260,7 +260,7 @@ module.exports = {
 							}\n\n- URLチェック機能: ${
 								server.url_check?.status ? '有効(true)' : '無効(false)'
 							}\n- URLの安全性が不明な場合に警告メッセージを送る機能: ${
-								server.url_check?.warnUnknownStatusMessage
+								server.url_check?.warnUnknownStatusURL
 									? '有効(true)'
 									: '無効(false)'
 							}`,

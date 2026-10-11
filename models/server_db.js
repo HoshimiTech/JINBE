@@ -10,7 +10,7 @@ const profileSchema = new mongoose.Schema(
 		message_expand: { type: Boolean, default: true }, //メッセージ展開機能の有効/無効
 		url_check: {
 			status: { type: Boolean, default: true }, //URLチェック機能の有効/無効
-			warnUnknownStatusMessage: { type: Boolean, default: false }, //URLの安全性が不明な場合に警告メッセージを送るかどうか
+			warnUnknownStatusURL: { type: Boolean, default: false }, //URLの安全性が不明な場合に警告メッセージを送るかどうか
 		},
 	},
 	{
